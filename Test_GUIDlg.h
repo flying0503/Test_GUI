@@ -11,6 +11,9 @@ class CTestGUIDlg : public CDialogEx
 // 构造
 public:
 	void List_Message_Init();
+	void List_Do_Init();
+	void List_Di_Init();
+	void Icon_Init();
 	CTestGUIDlg(CWnd* pParent = nullptr);	// 标准构造函数
 
 // 对话框数据
@@ -33,6 +36,10 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 	virtual void OnOK();
+	void My_Init();
 private:
 	CListCtrl m_list_message;
+	CListCtrl m_list_di;
+	CListCtrl m_list_do;
+	CImageList m_IconList;
 };

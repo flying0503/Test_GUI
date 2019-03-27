@@ -212,6 +212,9 @@
   <ItemGroup>
     <Image Include="..\OFF.ico" />
     <Image Include="..\ON.ico" />
+    <Image Include="OFF.ico" />
+    <Image Include="ON.ico" />
+    <Image Include="res\icon1.ico" />
     <Image Include="res\Test_GUI.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

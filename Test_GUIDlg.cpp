@@ -58,6 +58,8 @@ void CTestGUIDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST_MESSAGE, m_list_message);
+	DDX_Control(pDX, IDC_LIST_DI, m_list_di);
+	DDX_Control(pDX, IDC_LIST_DO, m_list_do);
 }
 
 BEGIN_MESSAGE_MAP(CTestGUIDlg, CDialogEx)
@@ -99,8 +101,7 @@ BOOL CTestGUIDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	
-	List_Message_Init();
+	My_Init();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -162,13 +163,65 @@ void CTestGUIDlg::OnOK()
 	//CDialogEx::OnOK();
 }
 
+void CTestGUIDlg::My_Init()
+{
+	Icon_Init();
+	List_Message_Init();
+	List_Do_Init();
+	List_Di_Init();
+}
+
 //List_Message 初始化
 void CTestGUIDlg::List_Message_Init()
 {
-	CString str[] = { TEXT("序号"),TEXT("消息类型"),
-		TEXT("参数0"),TEXT("参数1"),TEXT("参数3"),TEXT("参数4") };
-	for (size_t i = 0; i < 6; i++)
+	CString str[] = { TEXT("Num"),TEXT("Type"),
+		TEXT("Parameter0"),TEXT("Parameter1"),TEXT("Parameter3"),TEXT("Parameter4") };
+	for (size_t i = 0; i < sizeof(str) / sizeof(str[0]); i++)
 	{
-		m_list_message.InsertColumn(i, str[i], LVCFMT_LEFT, 70);
+		m_list_message.InsertColumn(i, str[i], LVCFMT_LEFT, 110);
 	}
+}
+
+//List_DO 初始化
+void CTestGUIDlg::List_Do_Init()
+{
+	CString str[] = { TEXT("Num"),TEXT("State")};
+	for (size_t i = 0; i < sizeof(str) / sizeof(str[0]); i++)
+	{
+		m_list_do.InsertColumn(i, str[i], LVCFMT_LEFT, 100);
+	}
+}
+
+#if 1
+void CTestGUIDlg::List_Di_Init()
+{
+	CString str[] = { TEXT("Num"),TEXT("State") };
+	for (size_t i = 0; i < sizeof(str) / sizeof(str[0]); i++)
+	{
+		m_list_di.InsertColumn(i, str[i], LVCFMT_LEFT, 100);
+	}
+
+	CString snum;
+	for (size_t i = 0; i < 16; i++)
+	{
+		snum.Format(TEXT("%d"), i);
+		m_list_di.InsertItem(i, snum,0);
+	}
+	
+	m_list_di.SetImageList(&m_IconList, LVSIL_NORMAL);
+	//m_list_di.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT |
+	//	LVS_EDITLABELS | LVS_EX_SUBITEMIMAGES);             //一定要设置LVS_EX_SUBITEMIMAGES
+	m_list_di.SetItem()
+}
+#endif // 0
+
+
+
+void CTestGUIDlg::Icon_Init()
+{
+	HICON ON = AfxGetApp()->LoadIcon(IDI_ICON_ON);
+	HICON OFF = AfxGetApp()->LoadIcon(IDI_ICON_OFF);
+	m_IconList.Create(16, 16, ILC_COLOR32, 1, 1);
+	m_IconList.Add(ON);
+	m_IconList.Add(OFF);
 }
