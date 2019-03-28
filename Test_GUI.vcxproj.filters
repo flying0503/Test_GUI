@@ -30,6 +30,21 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="dialog_target.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dialog_move.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dialong_operation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dialog_SetIO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="dialog_output.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Test_GUI.cpp">
@@ -39,6 +54,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog_target.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog_move.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dialong_operation.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog_SetIO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="dialog_output.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
