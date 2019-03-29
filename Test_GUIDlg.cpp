@@ -57,7 +57,7 @@ END_MESSAGE_MAP()
 CTestGUIDlg::CTestGUIDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_TEST_GUI_DIALOG, pParent)
 {
-	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_JZTD);
 }
 
 void CTestGUIDlg::DoDataExchange(CDataExchange* pDX)
@@ -68,6 +68,7 @@ void CTestGUIDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST_DO, m_list_do);
 	DDX_Control(pDX, IDC_LIST_STATE, m_list_state);
 	DDX_Control(pDX, IDC_MESSAGE_TYPE, m_message_type);
+	DDX_Control(pDX, IDC_LIST_BIT, m_list_bit);
 }
 
 BEGIN_MESSAGE_MAP(CTestGUIDlg, CDialogEx)
@@ -79,8 +80,9 @@ BEGIN_MESSAGE_MAP(CTestGUIDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_UP, &CTestGUIDlg::OnBnClickedUp)
 	ON_BN_CLICKED(IDC_DOWN, &CTestGUIDlg::OnBnClickedDown)
 	ON_BN_CLICKED(IDC_SEND, &CTestGUIDlg::OnBnClickedSend)
-//	ON_NOTIFY(HDN_ITEMCLICK, 0, &CTestGUIDlg::OnHdnItemclickListBit)
-ON_NOTIFY(NM_CLICK, IDC_LIST_MESSAGE, &CTestGUIDlg::OnNMClickListMessage)
+	ON_NOTIFY(NM_CLICK, IDC_LIST_MESSAGE, &CTestGUIDlg::OnNMClickListMessage)
+	ON_WM_SIZE()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -170,7 +172,7 @@ HCURSOR CTestGUIDlg::OnQueryDragIcon()
 }
 
 
-
+//重写，防止按ENTER退出
 void CTestGUIDlg::OnOK()
 {
 	// TODO: 在此添加专用代码和/或调用基类
@@ -180,12 +182,74 @@ void CTestGUIDlg::OnOK()
 
 void CTestGUIDlg::My_Init()
 {
-	//Icon_Init();
+	Icon_Init();
 	List_Message_Init();
 	List_Do_Init();
 	List_Di_Init();
 	List_State_Init();
+	List_Bit_Init();
 	Message_Type_Init();
+	Maximization_Init();
+	SetTimer(1, 100, NULL);	//设置定时器 1
+}
+
+//最大化
+void CTestGUIDlg::ReSize()
+{
+	float fsp[2];
+	POINT Newp; //获取现在对话框的大小
+	CRect recta;
+	GetClientRect(&recta);     //取客户区大小  
+	Newp.x = recta.right - recta.left;
+	Newp.y = recta.bottom - recta.top;
+	fsp[0] = (float)Newp.x / old.x;
+	fsp[1] = (float)Newp.y / old.y;
+	CRect Rect;
+	int woc;
+	CPoint OldTLPoint, TLPoint; //左上角
+	CPoint OldBRPoint, BRPoint; //右下角
+	HWND  hwndChild = ::GetWindow(m_hWnd, GW_CHILD);  //列出所有控件  
+	while (hwndChild)
+	{
+		woc = ::GetDlgCtrlID(hwndChild);//取得ID
+		GetDlgItem(woc)->GetWindowRect(Rect);
+		ScreenToClient(Rect);
+		OldTLPoint = Rect.TopLeft();
+		TLPoint.x = long(OldTLPoint.x*fsp[0]);
+		TLPoint.y = long(OldTLPoint.y*fsp[1]);
+		OldBRPoint = Rect.BottomRight();
+		BRPoint.x = long(OldBRPoint.x *fsp[0]);
+		BRPoint.y = long(OldBRPoint.y *fsp[1]);
+		Rect.SetRect(TLPoint, BRPoint);
+		GetDlgItem(woc)->MoveWindow(Rect, TRUE);
+		hwndChild = ::GetWindow(hwndChild, GW_HWNDNEXT);
+	}
+	old = Newp;
+}
+
+//最大化初始化
+void CTestGUIDlg::Maximization_Init()
+{
+	CRect rect;
+	GetClientRect(&rect);     //取客户区大小  
+	old.x = rect.right - rect.left;
+	old.y = rect.bottom - rect.top;
+}
+
+//更新控件
+void CTestGUIDlg::Upudate_My_Ctrl()
+{
+	//等待聂工的接口函数
+}
+
+//图标初始化
+void CTestGUIDlg::Icon_Init()
+{
+	HICON ON = AfxGetApp()->LoadIcon(IDI_ICON_ON);
+	HICON OFF = AfxGetApp()->LoadIcon(IDI_ICON_OFF);
+	m_IconList.Create(32, 32, ILC_COLOR32, 1, 1);
+	m_IconList.Add(ON);
+	m_IconList.Add(OFF);
 }
 
 //List_Message 初始化
@@ -204,48 +268,105 @@ void CTestGUIDlg::List_Message_Init()
 //List_DO 初始化
 void CTestGUIDlg::List_Do_Init()
 {
-	CString str[] = { TEXT("Num"),TEXT("State")};
-	for (size_t i = 0; i < sizeof(str) / sizeof(str[0]); i++)
-	{
-		m_list_do.InsertColumn(i, str[i], LVCFMT_LEFT, 100);
-	}
+	//关联列表和图片列表
+	m_list_do.SetImageList(&m_IconList, LVSIL_NORMAL);
+	//风格设置，一定要设置LVS_EX_SUBITEMIMAGES
+	m_list_do.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT |
+		LVS_EDITLABELS | LVS_EX_SUBITEMIMAGES);
+	//关联图片列表
+	m_list_do.SetImageList(&m_IconList, LVSIL_SMALL);
 
 	CString snum;
+	//设置图片item样式
+	LVITEM lvItem = { 0 };
+	lvItem.mask = LVIF_IMAGE | LVIF_TEXT | LVIF_STATE;	//文字、图片、状态
+	lvItem.iItem = 0;		//行号(第一行)
+	lvItem.iImage = 1;	//图片索引号(关图片)
+	lvItem.iSubItem = 1;	//子列号
+
+	CString str[] = { TEXT("Num"),TEXT("State") };
+	for (size_t i = 0; i < sizeof(str) / sizeof(str[0]); i++)
+	{
+		m_list_do.InsertColumn(i, str[i], LVCFMT_LEFT, 70);
+	}
+
 	for (size_t i = 0; i < 16; i++)
 	{
 		snum.Format(TEXT("%d"), i);
-		m_list_do.InsertItem(i, snum, 1);
+		m_list_do.InsertItem(i, snum, -1);
+		lvItem.iItem = i;					//行号(第一行)
+		m_list_do.SetItem(&lvItem);			//设置item
 	}
 }
 
 //List_DI 初始化
 void CTestGUIDlg::List_Di_Init()
 {
+	//关联列表和图片列表
+	m_list_di.SetImageList(&m_IconList, LVSIL_NORMAL);
+	//风格设置，一定要设置LVS_EX_SUBITEMIMAGES
+	m_list_di.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT |
+		LVS_EDITLABELS | LVS_EX_SUBITEMIMAGES);     
+	//关联图片列表
+	m_list_di.SetImageList(&m_IconList, LVSIL_SMALL);
+
+	CString snum;
+	//设置图片item样式
+	LVITEM lvItem = { 0 };
+	lvItem.mask = LVIF_IMAGE | LVIF_TEXT | LVIF_STATE;	//文字、图片、状态
+	lvItem.iItem = 0;		//行号(第一行)
+	lvItem.iImage = 1;	//图片索引号(关图片)
+	lvItem.iSubItem = 1;	//子列号
+
 	CString str[] = { TEXT("Num"),TEXT("State") };
 	for (size_t i = 0; i < sizeof(str) / sizeof(str[0]); i++)
 	{
-		m_list_di.InsertColumn(i, str[i], LVCFMT_LEFT, 100);
+		m_list_di.InsertColumn(i, str[i], LVCFMT_LEFT, 70);
 	}
 	
-	CString snum;
 	for (size_t i = 0; i < 16; i++)
 	{
 		snum.Format(TEXT("%d"), i);
-		m_list_di.InsertItem(i, snum,1);
+		m_list_di.InsertItem(i, snum,-1);
+		lvItem.iItem = i;					//行号(第一行)
+		m_list_di.SetItem(&lvItem);			//设置item
 	}
 }
 
-//图标初始化
-void CTestGUIDlg::Icon_Init()
+//位列表初始化
+void CTestGUIDlg::List_Bit_Init()
 {
-	HICON ON = AfxGetApp()->LoadIcon(IDI_ICON_ON);
-	HICON OFF = AfxGetApp()->LoadIcon(IDI_ICON_OFF);
-	m_IconList.Create(16, 16, ILC_COLOR32, 1, 1);
-	m_IconList.Add(ON);
-	m_IconList.Add(OFF);
-	m_list_di.SetImageList(&m_IconList, LVSIL_NORMAL);
-	m_list_di.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT |
-		LVS_EDITLABELS | LVS_EX_SUBITEMIMAGES);             //一定要设置LVS_EX_SUBITEMIMAGES
+	//关联列表和图片列表
+	m_list_bit.SetImageList(&m_IconList, LVSIL_NORMAL);
+	//风格设置，一定要设置LVS_EX_SUBITEMIMAGES
+	m_list_bit.SetExtendedStyle(LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT |
+		LVS_EDITLABELS | LVS_EX_SUBITEMIMAGES);
+	//关联图片列表
+	m_list_bit.SetImageList(&m_IconList, LVSIL_SMALL);
+
+	//设置图片item样式
+	LVITEM lvItem = { 0 };
+	lvItem.mask = LVIF_IMAGE | LVIF_TEXT | LVIF_STATE;	//文字、图片、状态
+	lvItem.iItem = 0;		//行号(第一行)
+	lvItem.iImage = 1;	//图片索引号(关图片)
+	lvItem.iSubItem = 1;	//子列号
+
+	CString str[] = { TEXT("Item"),TEXT("State") };
+	for (size_t i = 0; i < sizeof(str) / sizeof(str[0]); i++)
+	{
+		m_list_bit.InsertColumn(i, str[i], LVCFMT_LEFT, 150);
+	}
+	
+	CString sitem[] = { TEXT("Auto"),TEXT("Error"),TEXT("Low Power"),TEXT("Scram"),
+						TEXT("Load"),TEXT("Arrive"),TEXT("Operation Complete"),
+						TEXT("Moving"),TEXT("Pause") };
+	for (size_t i = 0; i < sizeof(sitem) / sizeof(sitem[0]); i++)
+	{
+		m_list_bit.InsertItem(i, sitem[i], -1);
+		lvItem.iItem = i;					//行号(第一行)
+		m_list_bit.SetItem(&lvItem);			//设置item
+	}
+	m_list_bit.InsertItem(9, TEXT("Current Direction"),-1);
 }
 
 //状态列表初始化
@@ -295,6 +416,7 @@ void CTestGUIDlg::Add_Message_Target()
 	}
 }
 
+//添加移动消息
 void CTestGUIDlg::Add_Message_Move()
 {
 	dialog_move dlg_move;
@@ -321,6 +443,7 @@ void CTestGUIDlg::Add_Message_Move()
 	}
 }
 
+//添加操作消息
 void CTestGUIDlg::Add_Message_Operation()
 {
 	dialong_operation dlg_operation;
@@ -339,6 +462,7 @@ void CTestGUIDlg::Add_Message_Operation()
 	}
 }
 
+//添加SetIO消息
 void CTestGUIDlg::Add_Message_SetIO()
 {
 	dialog_SetIO dlg_setio;
@@ -350,11 +474,12 @@ void CTestGUIDlg::Add_Message_SetIO()
 		str = dlg_setio.SetIO;
 		srow.Format(TEXT("%d"), row);
 		m_list_message.InsertItem(row, srow);
-		m_list_message.SetItemText(row, 1, TEXT("SetIO"));
+		m_list_message.SetItemText(row, 1, TEXT("Set IO"));
 		m_list_message.SetItemText(row, 2, str);
 	}
 }
 
+//添加Output消息
 void CTestGUIDlg::Add_Message_Output()
 {
 	dialog_output dlg_output;
@@ -402,6 +527,7 @@ void CTestGUIDlg::OnBnClickedAdd()
 	
 }
 
+//删除函数
 void CTestGUIDlg::OnBnClickedDelete()
 {
 	//int a = m_list_message.GetSelectionMark();
@@ -421,7 +547,7 @@ void CTestGUIDlg::OnBnClickedDelete()
 	Mask = row;
 }
 
-
+//上移函数
 void CTestGUIDlg::OnBnClickedUp()
 {
 	//int a = m_list_message.GetSelectionMark();//选中的行
@@ -456,6 +582,7 @@ void CTestGUIDlg::OnBnClickedUp()
 	}
 }
 
+//下移函数
 void CTestGUIDlg::OnBnClickedDown()
 {
 	int row = m_list_message.GetItemCount();
@@ -490,15 +617,80 @@ void CTestGUIDlg::OnBnClickedDown()
 	}
 }
 
+//发送按钮
 void CTestGUIDlg::OnBnClickedSend()
 {
+	int row = m_list_message.GetItemCount();
+	CString s_title;
 
+	for (size_t i = 0; i < row; i++)
+	{
+		s_title = m_list_message.GetItemText(i, 1);
+
+		if (s_title == TEXT("Target"))
+		{
+			//等待聂工的接口函数
+			MessageBox(TEXT("Target"));
+		}
+
+		if (s_title == TEXT("Move"))
+		{
+			//等待聂工的接口函数
+			MessageBox(TEXT("Move"));
+		}
+
+		if (s_title == TEXT("Operation"))
+		{
+			//等待聂工的接口函数
+			MessageBox(TEXT("Operation"));
+		}
+
+		if (s_title == TEXT("Set IO"))
+		{
+			//等待聂工的接口函数
+			MessageBox(TEXT("Set IO"));
+		}
+
+		if (s_title == TEXT("Output"))
+		{
+			//等待聂工的接口函数
+			MessageBox(TEXT("Output"));
+		}
+	}
 }
 
+//点击Message列表时得到选中的行
 void CTestGUIDlg::OnNMClickListMessage(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	// TODO: 在此添加控件通知处理程序代码
 	Mask = m_list_message.GetSelectionMark();
 	*pResult = 0;
+}
+
+//最大化函数
+void CTestGUIDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+
+	// TODO: 在此处添加消息处理程序代码
+	if (nType == SIZE_RESTORED || nType == SIZE_MAXIMIZED)
+	{
+		ReSize();
+	}
+}
+
+//定时器函数
+void CTestGUIDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	switch (nIDEvent)
+	{
+	case 1:
+		Upudate_My_Ctrl();
+	default:
+		break;
+	}
+
+	CDialogEx::OnTimer(nIDEvent);
 }

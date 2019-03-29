@@ -222,6 +222,7 @@
   <ItemGroup>
     <Image Include="..\OFF.ico" />
     <Image Include="..\ON.ico" />
+    <Image Include="JZTD.ico" />
     <Image Include="OFF.ico" />
     <Image Include="ON.ico" />
     <Image Include="res\icon1.ico" />

@@ -13,6 +13,7 @@ public:
 	void List_Message_Init();
 	void List_Do_Init();
 	void List_Di_Init();
+	void List_Bit_Init();
 	void Icon_Init();
 	void List_State_Init();
 	void Message_Type_Init();
@@ -44,16 +45,20 @@ protected:
 	DECLARE_MESSAGE_MAP()
 	virtual void OnOK();
 	void My_Init();
+	void ReSize();
+	void Maximization_Init();
+	void Upudate_My_Ctrl();
 private:
 	CListCtrl m_list_state;
 	CListCtrl m_list_di;
 	CListCtrl m_list_do;
+	CListCtrl m_list_message;
 	CImageList m_IconList;	
 	CComboBox m_message_type;
-
+	CListCtrl m_list_bit;
 	int Mask;		//选中的行
-public:
-	CListCtrl m_list_message;
+	
+	POINT old;
 
 public:
 	afx_msg void OnBnClickedAdd();
@@ -62,4 +67,6 @@ public:
 	afx_msg void OnBnClickedDown();
 	afx_msg void OnBnClickedSend();
 	afx_msg void OnNMClickListMessage(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

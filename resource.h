@@ -14,6 +14,7 @@
 #define IDD_DIALOG_OPERATION            137
 #define IDD_DIALOG_SetIO                139
 #define IDD_DIALOG_OUTPUT               141
+#define IDI_ICON_JZTD                   143
 #define IDC_LIST_MESSAGE                1001
 #define IDC_ADD                         1002
 #define IDC_DELETE                      1003
@@ -28,16 +29,22 @@
 #define IDC_EDIT_TARGET                 1011
 #define IDC_EDIT1                       1012
 #define IDC_EDIT2                       1013
+#define IDC_STATIC_ML                   1013
 #define IDC_EDIT3                       1014
+#define IDC_STATIC_MT                   1014
 #define IDC_EDIT4                       1015
+#define IDC_STATIC_DI                   1015
+#define IDC_STATIC_DO                   1016
+#define IDC_STATIC_BL                   1017
+#define IDC_STATIC_SL                   1018
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        143
+#define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1013
+#define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
