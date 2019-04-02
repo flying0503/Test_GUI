@@ -533,21 +533,18 @@ void CTestGUIDlg::OnBnClickedAdd()
 //删除函数
 void CTestGUIDlg::OnBnClickedDelete()
 {
-	//int a = m_list_message.GetSelectionMark();
-	int row = m_list_message.GetItemCount();
 	CString srow;
 	
-	if(row>0)
 	m_list_message.DeleteItem(Mask);
 
-	row = m_list_message.GetItemCount();
+	int row = m_list_message.GetItemCount();
 	
 	for (size_t i = 0; i < row; i++)
 	{
 		srow.Format(TEXT("%d"), i);
 		m_list_message.SetItemText(i, 0, srow);
 	}
-	Mask = row;
+	Mask==row;
 }
 
 //上移函数
@@ -701,10 +698,14 @@ void CTestGUIDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CTestGUIDlg::OnBnClickedSave()
 {
-	CFileDialog fileDlg(FALSE);
-	fileDlg.m_ofn.lpstrTitle = TEXT("Save Dialog");
-	fileDlg.m_ofn.lpstrFilter = TEXT("Excel 文件(*.xls)");
-	fileDlg.m_ofn.lpstrDefExt = TEXT("txt/xls");
+	CFileDialog fileDlg(FALSE, //TRUE或FALSE。TRUE为打开文件；FALSE为保存文件
+		TEXT("csv"), //为缺省的扩展名
+		TEXT("MessageList"), //为显示在文件名组合框的编辑框的文件名，一般可选NULL 
+		OFN_HIDEREADONLY,//为对话框风格，一般为OFN_HIDEREADONLY   |   OFN_OVERWRITEPROMPT,即隐藏只读选项和覆盖已有文件前提示。
+		TEXT("csv File(*.csv)|*.csv|all(*.*)|*.*||"),//为下拉列表枢中显示文件类型
+		NULL
+		);
+
 	if (IDOK == fileDlg.DoModal())
 	{
 		CStdioFile file(fileDlg.GetPathName(), CFile::modeCreate | CFile::modeWrite);
@@ -718,7 +719,7 @@ void CTestGUIDlg::OnBnClickedSave()
 			for (int j = 0; j <= index; j++)
 			{
 				strTemp = m_list_message.GetItemText(i, j);
-				strLine += strTemp + _T("\t");
+				strLine += strTemp + _T(",");
 			}
 			strLine += _T("\n");
 			file.WriteString(strLine);
@@ -729,20 +730,40 @@ void CTestGUIDlg::OnBnClickedSave()
 
 void CTestGUIDlg::OnBnClickedLoad()
 {	
-	CFileDialog fileDlg(TRUE);
-	fileDlg.m_ofn.lpstrTitle = TEXT("Open Dialog");
-	fileDlg.m_ofn.lpstrFilter = TEXT("Excel 文件(*.xls)");
-	fileDlg.m_ofn.lpstrDefExt = TEXT("txt/xls");
+	CFileDialog fileDlg(TRUE, //TRUE或FALSE。TRUE为打开文件；FALSE为保存文件
+		TEXT("csv"), //为缺省的扩展名
+		TEXT("MessageList"), //为显示在文件名组合框的编辑框的文件名，一般可选NULL 
+		OFN_HIDEREADONLY,//为对话框风格，一般为OFN_HIDEREADONLY   |   OFN_OVERWRITEPROMPT,即隐藏只读选项和覆盖已有文件前提示。
+		TEXT("csv File(*.csv)|*.csv|all(*.*)|*.*||"),//为下拉列表枢中显示文件类型
+		NULL
+		);
 	if (IDOK == fileDlg.DoModal())
 	{
 		CStdioFile file(fileDlg.GetPathName(), CFile::modeRead);
-		CString strText = TEXT("");
 		CString szLine = TEXT("");
-		int i = 0;
+		CString s_item[7];
+		int i = m_list_message.GetItemCount();
 		while (file.ReadString(szLine))
 		{
-			m_list_message.InsertItem(i, szLine);
+			m_list_message.InsertItem(i, TEXT(""));
+			for (size_t k = 0; k < 6; k++)
+			{
+				AfxExtractSubString(s_item[k], (LPCTSTR)szLine, k, ',');
+				//MessageBox(s_item[k]);
+				m_list_message.SetItemText(i, k, s_item[k]);
+			}
+			i++;
 		}
 		file.Close();
 	}
+
+	CString srow;
+	int row = m_list_message.GetItemCount();
+	m_list_message.DeleteItem(row);
+	for (size_t i = 0; i < row; i++)
+	{
+		srow.Format(TEXT("%d"), i);
+		m_list_message.SetItemText(i, 0, srow);
+	}
+	
 }

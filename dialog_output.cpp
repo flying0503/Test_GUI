@@ -31,6 +31,7 @@ void dialog_output::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(dialog_output, CDialogEx)
 	ON_BN_CLICKED(IDOK, &dialog_output::OnBnClickedOk)
+//	ON_EN_CHANGE(IDC_EDIT1, &dialog_output::OnEnChangeEdit1)
 END_MESSAGE_MAP()
 
 
@@ -44,3 +45,4 @@ void dialog_output::OnBnClickedOk()
 	UpdateData(TRUE);
 	CDialogEx::OnOK();
 }
+

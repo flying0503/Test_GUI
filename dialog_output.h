@@ -25,4 +25,5 @@ public:
 	bool ok_flag = false;
 
 	CString Output;
+//	afx_msg void OnEnChangeEdit1();
 };

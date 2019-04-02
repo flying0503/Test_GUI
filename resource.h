@@ -38,7 +38,6 @@
 #define IDC_STATIC_BL                   1017
 #define IDC_STATIC_SL                   1018
 #define IDC_SAVE                        1019
-#define IDC_BUTTON2                     1020
 #define IDC_LOAD                        1020
 
 // Next default values for new objects
