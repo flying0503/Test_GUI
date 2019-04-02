@@ -11,6 +11,7 @@
 #include "dialong_operation.h"
 #include "dialog_SetIO.h"
 #include "dialog_output.h"
+#include <afxdb.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -83,6 +84,8 @@ BEGIN_MESSAGE_MAP(CTestGUIDlg, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_MESSAGE, &CTestGUIDlg::OnNMClickListMessage)
 	ON_WM_SIZE()
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_SAVE, &CTestGUIDlg::OnBnClickedSave)
+	ON_BN_CLICKED(IDC_LOAD, &CTestGUIDlg::OnBnClickedLoad)
 END_MESSAGE_MAP()
 
 
@@ -693,4 +696,53 @@ void CTestGUIDlg::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CTestGUIDlg::OnBnClickedSave()
+{
+	CFileDialog fileDlg(FALSE);
+	fileDlg.m_ofn.lpstrTitle = TEXT("Save Dialog");
+	fileDlg.m_ofn.lpstrFilter = TEXT("Excel 文件(*.xls)");
+	fileDlg.m_ofn.lpstrDefExt = TEXT("txt/xls");
+	if (IDOK == fileDlg.DoModal())
+	{
+		CStdioFile file(fileDlg.GetPathName(), CFile::modeCreate | CFile::modeWrite);
+		CString strLine, strTemp;
+		int m_ntimer, index;
+		m_ntimer = m_list_message.GetItemCount();
+		index = m_list_message.GetHeaderCtrl()->GetItemCount();
+		for (int i = 0; i <= m_ntimer; i++)
+		{
+			strLine = _T("");
+			for (int j = 0; j <= index; j++)
+			{
+				strTemp = m_list_message.GetItemText(i, j);
+				strLine += strTemp + _T("\t");
+			}
+			strLine += _T("\n");
+			file.WriteString(strLine);
+		}
+		file.Close();
+	}
+}
+
+void CTestGUIDlg::OnBnClickedLoad()
+{	
+	CFileDialog fileDlg(TRUE);
+	fileDlg.m_ofn.lpstrTitle = TEXT("Open Dialog");
+	fileDlg.m_ofn.lpstrFilter = TEXT("Excel 文件(*.xls)");
+	fileDlg.m_ofn.lpstrDefExt = TEXT("txt/xls");
+	if (IDOK == fileDlg.DoModal())
+	{
+		CStdioFile file(fileDlg.GetPathName(), CFile::modeRead);
+		CString strText = TEXT("");
+		CString szLine = TEXT("");
+		int i = 0;
+		while (file.ReadString(szLine))
+		{
+			m_list_message.InsertItem(i, szLine);
+		}
+		file.Close();
+	}
 }
